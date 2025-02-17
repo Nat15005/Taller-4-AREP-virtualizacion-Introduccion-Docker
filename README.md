@@ -70,6 +70,11 @@ This will return: Hello Natalia
 
 ![image](https://github.com/user-attachments/assets/c1872f0d-eb3f-46f6-b065-610f5c4ed404)
 
+### Access the REST endpoints:
+
+- GET /getBooks → List all books
+- POST /addBook?bookTitle=Title&bookAuthor=Author → Add a new book
+- DELETE /deleteBook?bookTitle=Title → Remove a book
 
 ### Static File Location Specification
 
@@ -109,8 +114,25 @@ http://localhost:35000/index.html
 This will serve the index.html file from the prueba folder.
 ![image](https://github.com/user-attachments/assets/ef2cf31a-8dd1-4126-9a53-0f6430a8db91)
 
+## Concurrency Improvements
 
-### Running Tests
+To handle multiple simultaneous requests efficiently, the following enhancements were implemented:
+
+1. Thread Pool for Request Handling
+   - Implemented a fixed thread pool (size = 10) using ExecutorService.
+   - Each incoming request is submitted to the thread pool for processing, preventing excessive thread creation.
+
+2. Graceful Shutdown Mechanism
+   - A shutdown hook was added to properly close the thread pool and free resources when the server stops.
+   - Ensures that pending tasks finish execution before shutting down the server.
+
+3. Concurrent Data Management
+   - Replaced the book list with ConcurrentHashMap to avoid race conditions.
+   - Ensures that multiple requests can modify the book collection safely.
+
+## Dockerization & Deployment
+
+## Running Tests
 
 To run the unit tests, use the following command:
 
