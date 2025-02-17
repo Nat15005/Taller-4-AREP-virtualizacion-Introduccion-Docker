@@ -2,29 +2,24 @@ package edu.escuelaing.arep.controller;
 
 import edu.escuelaing.arep.annotations.*;
 import edu.escuelaing.arep.model.Book;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class BookController {
-    private static final List<Book> books = Collections.synchronizedList(new ArrayList<>());
+    private static final ConcurrentHashMap<String, Book> books = new ConcurrentHashMap<>();
 
     @GetMapping("/getBooks")
     public String getBooks() {
-        synchronized (books) { // Sincronizar el acceso a la lista
-            StringBuilder json = new StringBuilder("{ \"books\": [");
-            for (int i = 0; i < books.size(); i++) {
-                json.append("{\"title\": \"").append(books.get(i).getTitle())
-                        .append("\", \"author\": \"").append(books.get(i).getAuthor()).append("\"}");
-                if (i < books.size() - 1) json.append(", ");
-            }
-            json.append("] }");
-            return json.toString();
+        StringBuilder json = new StringBuilder("{ \"books\": [");
+        books.values().forEach(book -> {
+            json.append("{\"title\": \"").append(book.getTitle())
+                    .append("\", \"author\": \"").append(book.getAuthor()).append("\"},");
+        });
+        if (!books.isEmpty()) {
+            json.deleteCharAt(json.length() - 1); // Eliminar la última coma
         }
+        json.append("] }");
+        return json.toString();
     }
 
     @PostMapping("/addBook")
@@ -33,9 +28,16 @@ public class BookController {
         if (title.isEmpty() || author.isEmpty()) {
             return "{\"error\": \"El título y el autor no pueden estar vacíos.\"}";
         }
-        synchronized (books) { // Sincronizar el acceso a la lista
-            books.add(new Book(title, author));
+
+        String key = title.toLowerCase() + "|" + author.toLowerCase();
+
+        // Verificar si el libro ya existe
+        if (books.containsKey(key)) {
+            return "{\"error\": \"El libro ya existe.\"}";
         }
+
+        // Añadir el libro si no existe
+        books.put(key, new Book(title, author));
         return "{\"message\": \"Libro añadido: " + title + " por " + author + "\"}";
     }
 
@@ -44,9 +46,8 @@ public class BookController {
         if (title.isEmpty()) {
             return "{\"error\": \"El título no puede estar vacío.\"}";
         }
-        synchronized (books) { // Sincronizar el acceso a la lista
-            boolean removed = books.removeIf(book -> book.getTitle().equals(title));
-            return removed ? "{\"message\": \"Libro eliminado: " + title + "\"}" : "{\"error\": \"Libro no encontrado\"}";
-        }
+        // Buscar y eliminar el libro por título
+        boolean removed = books.entrySet().removeIf(entry -> entry.getValue().getTitle().equalsIgnoreCase(title));
+        return removed ? "{\"message\": \"Libro eliminado: " + title + "\"}" : "{\"error\": \"Libro no encontrado\"}";
     }
 }
