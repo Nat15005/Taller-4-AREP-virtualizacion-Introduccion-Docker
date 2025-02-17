@@ -1,9 +1,8 @@
 # Web Framework Development for REST Services and Static File Management
 
-This framework is a lightweight web server built in Java, inspired by Apache, that can serve HTML pages and PNG images. It also includes an Inversion of Control (IoC) framework that allows building web applications using Plain Old Java Objects (POJOs). The server supports handling multiple non-concurrent requests and automatically detects annotated components to expose web services.
+This framework is a lightweight, concurrent web server built in Java, inspired by Apache, capable of serving HTML pages and PNG images. It includes an Inversion of Control (IoC) mechanism that allows building web applications using Plain Old Java Objects (POJOs). The server supports handling multiple concurrent requests and automatically detects annotated components to expose web services.
 
-
-As a demonstration of the server's functionality, a simple web application is included to handle books. It allows users to add, delete, and list books using REST services.
+As part of the project, a demonstration web application was built to manage books, allowing users to add, delete, and list books through REST services. The application was then containerized using Docker, configured and deployed locally, and pushed to a repository on DockerHub. Finally, an AWS EC2 virtual machine was set up, Docker was installed, and the container was deployed successfully.
 
 ## Getting Started
 
@@ -23,11 +22,11 @@ Follow these steps to get the development environment running:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Nat15005/AREP-Taller3.git
+   git https://github.com/Nat15005/Taller-4-AREP-virtualizacion-Introduccion-Docker.git
    ```
 2. **Navigate to the project folder:**
    ```bash
-   cd AREP-Taller3
+   cd AREP-Taller-4-AREP-virtualizacion-Introduccion-Docker
    ```
 3. **Build the project using Maven:**
    ```bash
