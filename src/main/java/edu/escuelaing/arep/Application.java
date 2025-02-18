@@ -66,18 +66,38 @@ public class Application {
             throw new RuntimeException("Package not found: " + packageName);
         }
 
-        File directory = new File(resource.toURI());
-        for (File file : directory.listFiles()) {
-            if (file.getName().endsWith(".class")) {
-                String className = packageName + '.' + file.getName().replace(".class", "");
-                Class<?> clazz = Class.forName(className);
-
-                if (clazz.isAnnotationPresent(RestController.class)) {
-                    registerController(clazz);
+        if (resource.getProtocol().equals("file")) {
+            // Si se está ejecutando fuera de un JAR, usa File
+            File directory = new File(resource.toURI());
+            for (File file : directory.listFiles()) {
+                if (file.getName().endsWith(".class")) {
+                    loadClass(packageName, file.getName());
                 }
             }
+        } else if (resource.getProtocol().equals("jar")) {
+            // Si se está ejecutando dentro de un JAR, usa la lista de recursos del JAR
+            String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!")); // Extrae el JAR real
+            try (java.util.jar.JarFile jarFile = new java.util.jar.JarFile(jarPath)) {
+                for (java.util.Enumeration<java.util.jar.JarEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
+                    String entryName = entries.nextElement().getName();
+                    if (entryName.startsWith(path) && entryName.endsWith(".class")) {
+                        loadClass(packageName, entryName.substring(path.length() + 1));
+                    }
+                }
+            }
+        } else {
+            throw new UnsupportedOperationException("Unsupported protocol: " + resource.getProtocol());
         }
     }
+
+    private static void loadClass(String packageName, String fileName) throws Exception {
+        String className = packageName + '.' + fileName.replace(".class", "");
+        Class<?> clazz = Class.forName(className);
+        if (clazz.isAnnotationPresent(RestController.class)) {
+            registerController(clazz);
+        }
+    }
+
 
     /**
      * Registra los métodos anotados con @GetMapping, @PostMapping y @DeleteMapping en el framework.
