@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpServer {
 
-    private static final int PORT = 35000; // Puerto en el que escucha el servidor
+    private static final int PORT = 6000; // Puerto en el que escucha el servidor
     private static final int THREAD_POOL_SIZE = 10; // Tamaño del pool de threads
     private static ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE); // Pool de threads
     private static boolean isRunning = true; // Bandera para controlar el bucle del servidor
