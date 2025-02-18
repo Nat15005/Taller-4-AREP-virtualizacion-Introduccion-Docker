@@ -14,9 +14,6 @@ import java.util.*;
  */
 public class RequestHandler {
 
-    /** Lista de libros almacenados en memoria. */
-    private static final List<Book> books = new ArrayList<>();
-
     /**
      * Maneja una solicitud de un cliente.
      * Lee la solicitud, extrae el metodo, el recurso y los parámetros de la consulta,
