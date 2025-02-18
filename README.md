@@ -201,9 +201,11 @@ mvn test
 ![image](https://github.com/user-attachments/assets/54205ab7-cd57-42c7-9b2f-cbd3ea1556fd)
 
 
-### BookTest
-- testBookCreation: Verifies that a Book object is created correctly with the specified title and author.
-- testToString: Checks that the toString method of the Book class returns the expected JSON representation of the book.
+### BookTest  
+- **testGetTitle:** Verifies that the `getTitle` method correctly returns the title of the book.  
+- **testGetAuthor:** Ensures that the `getAuthor` method returns the expected author name.  
+- **testToString:** Checks that the `toString` method outputs the expected JSON representation of the book.  
+
 
 ### RequestTest
 
@@ -238,6 +240,10 @@ mvn test
 - testHandleRequestForPostMethod: Checks that a registered POST route is handled correctly.
 - testHandleRequestForDeleteMethod: Verifies that a registered DELETE route is handled successfully.
 - testHandleRequestForUnsupportedMethod: Ensures that an unsupported HTTP method (e.g., PUT) returns a 405 error.
+
+### HttpServerTest  
+- **testConcurrentRequests:** Simulates multiple concurrent GET requests to `/getBooks` and verifies that the server handles them correctly by responding with HTTP 200.  
+- **testConcurrentPostAndDeleteRequests:** Sends concurrent POST requests to add books and DELETE requests to remove them, ensuring that the server processes concurrent modifications safely.  
 
 
 ### Project Structure
