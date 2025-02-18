@@ -122,13 +122,72 @@ To handle multiple simultaneous requests efficiently, the following enhancements
    - Implemented a fixed thread pool (size = 10) using ExecutorService.
    - Each incoming request is submitted to the thread pool for processing, preventing excessive thread creation.
 
-2. Graceful Shutdown Mechanism
+   
+ ``` java
+private static final int THREAD_POOL_SIZE = 10; 
+private static ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+
+while (isRunning) {
+    try {
+        Socket clientSocket = serverSocket.accept();
+        System.out.println("Nueva conexión aceptada: " + clientSocket.getInetAddress());
+
+        threadPool.submit(() -> {
+            try {
+                RequestHandler.handleClient(clientSocket);
+            } catch (IOException e) {
+                System.err.println("Error al manejar la solicitud: " + e.getMessage());
+            } finally {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    System.err.println("Error al cerrar el socket del cliente: " + e.getMessage());
+                }
+            }
+        });
+    } catch (IOException e) {
+        if (isRunning) {
+            System.err.println("Error al aceptar la conexión: " + e.getMessage());
+        }
+    }
+} 
+``` 
+   
+
+3. Graceful Shutdown Mechanism
    - A shutdown hook was added to properly close the thread pool and free resources when the server stops.
    - Ensures that pending tasks finish execution before shutting down the server.
+   
+ ``` java
+Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+    System.out.println("Apagando el servidor...");
+    isRunning = false;
+    threadPool.shutdown();
+    try {
+        if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+            threadPool.shutdownNow();
+        }
+    } catch (InterruptedException e) {
+        threadPool.shutdownNow();
+    }
+    try {
+        serverSocket.close();
+    } catch (IOException e) {
+        System.err.println("Error al cerrar el socket del servidor: " + e.getMessage());
+    }
+    System.out.println("Servidor cerrado.");
+}));
 
-3. Concurrent Data Management
+``` 
+
+4. Concurrent Data Management
    - Replaced the book list with ConcurrentHashMap to avoid race conditions.
    - Ensures that multiple requests can modify the book collection safely.
+
+``` java
+private static final ConcurrentHashMap<String, Book> books = new ConcurrentHashMap<>();
+
+``` 
 
 ## Dockerization & Deployment
 
@@ -139,7 +198,7 @@ To run the unit tests, use the following command:
 ```bash
 mvn test
 ```
-![image](https://github.com/user-attachments/assets/79a7696c-52bf-462c-8dd0-a8ade7466979)
+![image](https://github.com/user-attachments/assets/54205ab7-cd57-42c7-9b2f-cbd3ea1556fd)
 
 
 ### BookTest
