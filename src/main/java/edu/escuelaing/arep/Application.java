@@ -25,7 +25,7 @@ public class Application {
     public static void main(String[] args) {
         try {
             // Configurar la carpeta de archivos estáticos
-            WebFramework.staticfiles("src/main/resources/static");
+            WebFramework.staticfiles("static");
 
             // Cargar POJO desde la línea de comandos (si se proporciona)
             if (args.length > 0) {

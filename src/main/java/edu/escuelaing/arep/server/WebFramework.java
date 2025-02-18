@@ -23,7 +23,7 @@ import java.util.function.BiFunction;
 public class WebFramework {
 
     // Ruta por defecto para los archivos estáticos
-    private static String staticFolder = "src/main/resources/static";
+    private static String staticFolder;
 
     // Mapa que almacena las rutas GET, POST y DELETE registradas y sus manejadores
     static final Map<String, BiFunction<Request, Response, String>> getRoutes = new HashMap<>();
@@ -32,11 +32,20 @@ public class WebFramework {
 
     /**
      * Permite configurar la ubicación de los archivos estáticos.
+     * Si la aplicación se está ejecutando en Docker, usa una ruta específica.
+     * Si no, usa la ruta local.
      *
-     * @param folder Ruta donde se encuentran los archivos estáticos.
+     * @param folder Ruta donde se encuentran los archivos estáticos en el entorno local.
      */
     public static void staticfiles(String folder) {
-        staticFolder = folder;
+        String dockerEnv = System.getenv("DOCKER_ENV");
+        if (dockerEnv != null && dockerEnv.equals("true")) {
+            // Ruta dentro del contenedor Docker
+            staticFolder = "/usrapp/bin/" + folder;
+        } else {
+            // Ruta local
+            staticFolder = "src/main/resources/" + folder;
+        }
     }
 
     /**

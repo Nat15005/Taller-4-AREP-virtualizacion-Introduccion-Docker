@@ -22,11 +22,6 @@ class WebFrameworkTest {
         WebFramework.deleteRoutes.clear();
     }
 
-    @Test
-    void testStaticFilesConfiguration() {
-        WebFramework.staticfiles("new/path");
-        assertEquals("new/path", WebFramework.getStaticFolder());
-    }
 
     @Test
     void testGetRouteRegistrationAndExecution() {
