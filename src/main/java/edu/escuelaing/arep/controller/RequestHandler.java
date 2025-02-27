@@ -9,18 +9,18 @@ import java.net.URLDecoder;
 import java.util.*;
 
 /**
- * Clase encargada de manejar las solicitudes HTTP de los clientes, incluyendo
- * la gestión de libros (GET, POST, DELETE) y la respuesta con archivos estáticos.
+ * Class responsible for handling HTTP requests from clients.
+ * This class manages book-related operations (GET, POST, DELETE) and serves static files.
  */
 public class RequestHandler {
 
     /**
-     * Maneja una solicitud de un cliente.
-     * Lee la solicitud, extrae el metodo, el recurso y los parámetros de la consulta,
-     * y luego maneja la solicitud según el metodo HTTP (GET, POST, DELETE).
+     * Handles a client request.
+     * Reads the request, extracts the HTTP method, resource, and query parameters,
+     * and then processes the request based on the HTTP method (GET, POST, DELETE).
      *
-     * @param clientSocket Socket del cliente que hace la solicitud.
-     * @throws IOException Si ocurre un error de entrada o salida al manejar la solicitud.
+     * @param clientSocket The client socket making the request.
+     * @throws IOException If an I/O error occurs while handling the request.
      */
     public static void handleClient(Socket clientSocket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -40,7 +40,6 @@ public class RequestHandler {
             clientSocket.close();
             return;
         }
-
         String method = requestParts[0];  // GET, POST, DELETE, etc.
         String fullResource = requestParts[1]; // /App/hello?name=Pedro
 
@@ -78,12 +77,12 @@ public class RequestHandler {
     }
 
     /**
-     * Lee los encabezados de la solicitud.
+     * Reads the headers of the request.
      *
-     * @param in Flujo de entrada de la solicitud.
-     * @param out Flujo de salida para enviar la respuesta.
-     * @return Un mapa de encabezados clave-valor.
-     * @throws IOException Si ocurre un error de entrada o salida.
+     * @param in The input stream of the request.
+     * @param out The output stream to send the response.
+     * @return A map of key-value headers.
+     * @throws IOException If an I/O error occurs.
      */
     private static HashMap<String, String> readHeaders(BufferedReader in, OutputStream out) throws IOException {
         HashMap<String, String> headers = new HashMap<>();
@@ -93,19 +92,18 @@ public class RequestHandler {
             if (headerParts.length == 2) {
                 headers.put(headerParts[0], headerParts[1]);
             } else {
-                // Si un encabezado no está bien formado, respondemos con Bad Request
                 sendBadRequest(out);
-                return null;  // Devuelvo null si hay un error en los encabezados
+                return null;
             }
         }
         return headers;
     }
 
     /**
-     * Envía una respuesta HTTP 400 Bad Request.
+     * Sends an HTTP 400 Bad Request response.
      *
-     * @param out Flujo de salida para enviar la respuesta.
-     * @throws IOException Si ocurre un error de entrada o salida.
+     * @param out The output stream to send the response.
+     * @throws IOException If an I/O error occurs.
      */
     private static void sendBadRequest(OutputStream out) throws IOException {
         String response = "HTTP/1.1 400 Bad Request\r\n" +

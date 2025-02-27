@@ -17,91 +17,88 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
- * Framework web sencillo que permite manejar peticiones HTTP GET, POST y DELETE, y servir archivos estáticos.
- * Permite registrar rutas para manejar peticiones y especificar la ubicación de los archivos estáticos.
+ * A simple web framework that handles HTTP GET, POST, and DELETE requests and serves static files.
+ * It allows registering routes to handle requests and specifying the location of static files.
  */
 public class WebFramework {
 
-    // Ruta por defecto para los archivos estáticos
     private static String staticFolder;
 
-    // Mapa que almacena las rutas GET, POST y DELETE registradas y sus manejadores
+    // Maps storing registered GET, POST, and DELETE routes with their respective handlers
     static final Map<String, BiFunction<Request, Response, String>> getRoutes = new HashMap<>();
     static final Map<String, BiFunction<Request, Response, String>> postRoutes = new HashMap<>();
     static final Map<String, BiFunction<Request, Response, String>> deleteRoutes = new HashMap<>();
 
     /**
-     * Permite configurar la ubicación de los archivos estáticos.
-     * Si la aplicación se está ejecutando en Docker, usa una ruta específica.
-     * Si no, usa la ruta local.
+     * Configures the location of static files.
+     * If the application is running in Docker, it uses a specific path.
+     * Otherwise, it uses the local path.
      *
-     * @param folder Ruta donde se encuentran los archivos estáticos en el entorno local.
+     * @param folder The directory where static files are stored in the local environment.
      */
     public static void staticfiles(String folder) {
         String dockerEnv = System.getenv("DOCKER_ENV");
         if (dockerEnv != null && dockerEnv.equals("true")) {
-            // Ruta dentro del contenedor Docker
+            // Path inside the Docker container
             staticFolder = "/usrapp/bin/" + folder;
         } else {
-            // Ruta local
             staticFolder = "src/main/resources/" + folder;
         }
     }
 
     /**
-     * Registra un nuevo endpoint GET en el framework.
+     * Registers a new GET endpoint in the framework.
      *
-     * @param path    Ruta de la API.
-     * @param handler Función lambda que maneja la petición.
+     * @param path    The API route.
+     * @param handler Lambda function that handles the request.
      */
     public static void get(String path, BiFunction<Request, Response, String> handler) {
         getRoutes.put(path, handler);
     }
 
     /**
-     * Registra un nuevo endpoint POST en el framework.
+     * Registers a new POST endpoint in the framework.
      *
-     * @param path    Ruta de la API.
-     * @param handler Función lambda que maneja la petición.
+     * @param path    The API route.
+     * @param handler Lambda function that handles the request.
      */
     public static void post(String path, BiFunction<Request, Response, String> handler) {
         postRoutes.put(path, handler);
     }
 
     /**
-     * Registra un nuevo endpoint DELETE en el framework.
+     * Registers a new DELETE endpoint in the framework.
      *
-     * @param path    Ruta de la API.
-     * @param handler Función lambda que maneja la petición.
+     * @param path    The API route.
+     * @param handler Lambda function that handles the request.
      */
     public static void delete(String path, BiFunction<Request, Response, String> handler) {
         deleteRoutes.put(path, handler);
     }
 
     /**
-     * Maneja las peticiones entrantes según el metodo y recurso solicitado.
-     * Si la petición es un GET, POST o DELETE y la ruta está registrada, ejecuta el manejador correspondiente.
-     * Si no, intenta servir un archivo estático.
+     * Handles incoming requests based on the HTTP method and requested resource.
+     * If the request is a GET, POST, or DELETE and the route is registered, it executes the corresponding handler.
+     * Otherwise, it attempts to serve a static file.
      *
-     * @param method      El metodo HTTP (por ejemplo, "GET", "POST", "DELETE").
-     * @param resource    La ruta del recurso solicitado.
-     * @param queryParams Parámetros de consulta de la URL.
-     * @param out         El flujo de salida donde se enviará la respuesta.
-     * @throws IOException Si ocurre un error al escribir en el flujo de salida.
+     * @param method      The HTTP method (e.g., "GET", "POST", "DELETE").
+     * @param resource    The requested resource path.
+     * @param queryParams Query parameters from the URL.
+     * @param body        The request body, if applicable.
+     * @param out         The output stream where the response will be sent.
+     * @throws IOException If an error occurs while writing to the output stream.
      */
-
     public static void handleRequest(String method, String resource, Map<String, String> queryParams, String body, OutputStream out) throws IOException {
         Request req = new Request(queryParams);
 
-        // Convertimos el body a un BufferedReader antes de asignarlo
+        // Convert the body into a BufferedReader before assigning it
         if (body != null && !body.isEmpty()) {
             req.setBodyReader(new BufferedReader(new StringReader(body)));
         }
-
         Response res = new Response();
         String responseBody;
 
-        // Mapeamos la solicitud al controlador correspondiente
+        // Map the request to the corresponding controller
         BiFunction<Request, Response, String> handler = null;
 
         if ("GET".equalsIgnoreCase(method)) {
@@ -109,9 +106,8 @@ public class WebFramework {
                 handler = getRoutes.get(resource);
                 responseBody = handler.apply(req, res);
             } else {
-                // Intenta servir un archivo estático si la ruta no está en getRoutes
                 FileHandler.serveFile(resource, out);
-                return; // Importante: salir para evitar escribir otra respuesta
+                return;
             }
         } else if ("POST".equalsIgnoreCase(method)) {
             handler = postRoutes.getOrDefault(resource, (r, s) -> "404 Not Found");
@@ -123,8 +119,6 @@ public class WebFramework {
         else {
             responseBody = "405 Method Not Allowed";
         }
-
-        // Construcción de la respuesta HTTP
         String response = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: application/json\r\n" +
                 "Content-Length: " + responseBody.getBytes().length + "\r\n" +
@@ -136,17 +130,21 @@ public class WebFramework {
         out.flush();
     }
 
-
-
     /**
-     * Obtiene la ruta de la carpeta de archivos estáticos configurada.
+     * Gets the configured static files folder path.
      *
-     * @return La ruta de la carpeta de archivos estáticos.
+     * @return The path of the static files' directory.
      */
     public static String getStaticFolder() {
         return staticFolder;
     }
 
+    /**
+     * Registers controllers that are annotated with @RestController.
+     * Scans methods annotated with @GetMapping and @PostMapping to map them to their respective routes.
+     *
+     * @param controllers The controllers to be registered.
+     */
     public static void registerControllers(Object... controllers) {
         for (Object controller : controllers) {
             Class<?> clazz = controller.getClass();
@@ -165,7 +163,6 @@ public class WebFramework {
                         String path = method.getAnnotation(PostMapping.class).value();
                         post(path, (req, res) -> {
                             try {
-                                // Extraer los parámetros de la solicitud
                                 Object[] args = extractMethodArguments(method, req);
                                 return (String) method.invoke(controller, args);
                             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -179,7 +176,11 @@ public class WebFramework {
     }
 
     /**
-     * Extrae los argumentos para un método anotado, basándose en los parámetros de la solicitud.
+     * Extracts the arguments for an annotated method based on request parameters.
+     *
+     * @param method The method to extract arguments for.
+     * @param req    The request object containing query parameters.
+     * @return An array of extracted method arguments.
      */
     private static Object[] extractMethodArguments(Method method, Request req) {
         Object[] args = new Object[method.getParameterCount()];
@@ -190,8 +191,6 @@ public class WebFramework {
                 edu.escuelaing.arep.annotations.RequestParam requestParam = parameter.getAnnotation(edu.escuelaing.arep.annotations.RequestParam.class);
                 String paramName = requestParam.value();
                 String defaultValue = requestParam.defaultValue();
-
-                // Obtener valor del queryParams o usar el defaultValue si no está presente
                 String value = req.getQueryParams().getOrDefault(paramName, defaultValue);
                 args[index] = value;
             }

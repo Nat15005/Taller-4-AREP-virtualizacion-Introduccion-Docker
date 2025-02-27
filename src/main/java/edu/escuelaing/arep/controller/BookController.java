@@ -4,10 +4,19 @@ import edu.escuelaing.arep.annotations.*;
 import edu.escuelaing.arep.model.Book;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * REST controller for managing books.
+ * This class handles CRUD (Create, Read, Delete) operations for books.
+ */
 @RestController
 public class BookController {
     private static final ConcurrentHashMap<String, Book> books = new ConcurrentHashMap<>();
 
+    /**
+     * Retrieves the list of all books in JSON format.
+     *
+     * @return A JSON string containing the list of books.
+     */
     @GetMapping("/getBooks")
     public String getBooks() {
         StringBuilder json = new StringBuilder("{ \"books\": [");
@@ -22,6 +31,13 @@ public class BookController {
         return json.toString();
     }
 
+    /**
+     * Adds a new book to the collection.
+     *
+     * @param title The title of the book.
+     * @param author The author of the book.
+     * @return A JSON message indicating whether the book was added successfully or if an error occurred.
+     */
     @PostMapping("/addBook")
     public String addBook(@RequestParam(value = "bookTitle") String title,
                           @RequestParam(value = "bookAuthor") String author) {
@@ -41,6 +57,12 @@ public class BookController {
         return "{\"message\": \"Libro añadido: " + title + " por " + author + "\"}";
     }
 
+    /**
+     * Deletes a book from the collection by its title.
+     *
+     * @param title The title of the book to delete.
+     * @return A JSON message indicating whether the book was deleted successfully or if it was not found.
+     */
     @DeleteMapping("/deleteBook")
     public String deleteBook(@RequestParam("bookTitle") String title) {
         if (title.isEmpty()) {

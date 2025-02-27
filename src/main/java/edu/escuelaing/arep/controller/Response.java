@@ -1,27 +1,26 @@
 package edu.escuelaing.arep.controller;
 
 /**
- * Clase que representa una respuesta HTTP (Response).
- * Permite configurar y obtener el tipo de contenido de la respuesta.
+ * Represents an HTTP response.
+ * This class allows setting and retrieving the content type of the response.
  */
 public class Response {
 
-    // Tipo de contenido de la respuesta (por defecto es "text/plain")
     private String contentType = "text/plain";
 
     /**
-     * Establece el tipo de contenido de la respuesta HTTP.
+     * Sets the content type of the HTTP response.
      *
-     * @param contentType El tipo de contenido que se desea establecer.
+     * @param contentType The content type to set.
      */
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 
     /**
-     * Obtiene el tipo de contenido de la respuesta HTTP.
+     * Retrieves the content type of the HTTP response.
      *
-     * @return El tipo de contenido de la respuesta.
+     * @return The content type of the response.
      */
     public String getContentType() {
         return contentType;

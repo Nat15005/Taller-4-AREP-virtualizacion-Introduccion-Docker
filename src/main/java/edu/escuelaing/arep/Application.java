@@ -9,25 +9,23 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Clase principal que inicia el servidor web y carga automáticamente los controladores.
+ * Main class that starts the web server and automatically loads controllers.
  */
 public class Application {
 
     /**
-     * Metodo principal que inicia el servidor web.
+     * Main method that starts the web server.
      *
-     * @param args Argumentos de línea de comandos. El primer argumento puede ser la clase del POJO a cargar.
+     * @param args Command-line arguments. The first argument can be the POJO class to load.
      */
     public static void main(String[] args) {
         try {
-            // Configurar la carpeta de archivos estáticos
+            // Configure the static files directory
             WebFramework.staticfiles("static");
 
-            // Cargar POJO desde la línea de comandos (si se proporciona)
+            // Load POJO from the command line (if provided)
             if (args.length > 0) {
                 String className = args[0];
                 System.out.println("Cargando POJO desde la línea de comandos: " + className);
@@ -38,12 +36,10 @@ public class Application {
                     System.err.println("La clase " + className + " no está anotada con @RestController.");
                 }
             } else {
-                // Cargar automáticamente los controladores si no se especifica un POJO
+                // Automatically load controllers if no POJO is specified
                 System.out.println("Cargando controladores automáticamente...");
                 loadControllers("edu.escuelaing.arep.controller");
             }
-
-            // Iniciar el servidor
             HttpServer.start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,10 +48,10 @@ public class Application {
     }
 
     /**
-     * Carga automáticamente las clases anotadas con @RestController en el paquete especificado.
+     * Automatically loads classes annotated with @RestController in the specified package.
      *
-     * @param packageName Nombre del paquete donde se encuentran los controladores.
-     * @throws Exception Si ocurre un error al cargar las clases.
+     * @param packageName Name of the package where the controllers are located.
+     * @throws Exception If an error occurs while loading the classes.
      */
     private static void loadControllers(String packageName) throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -67,7 +63,7 @@ public class Application {
         }
 
         if (resource.getProtocol().equals("file")) {
-            // Si se está ejecutando fuera de un JAR, usa File
+            // If running outside a JAR, use File
             File directory = new File(resource.toURI());
             for (File file : directory.listFiles()) {
                 if (file.getName().endsWith(".class")) {
@@ -75,8 +71,8 @@ public class Application {
                 }
             }
         } else if (resource.getProtocol().equals("jar")) {
-            // Si se está ejecutando dentro de un JAR, usa la lista de recursos del JAR
-            String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!")); // Extrae el JAR real
+            // If running inside a JAR, use the JAR's resource list
+            String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!")); // Extract the actual JAR path
             try (java.util.jar.JarFile jarFile = new java.util.jar.JarFile(jarPath)) {
                 for (java.util.Enumeration<java.util.jar.JarEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
                     String entryName = entries.nextElement().getName();
@@ -90,6 +86,13 @@ public class Application {
         }
     }
 
+    /**
+     * Loads a class dynamically from the specified package.
+     *
+     * @param packageName The package where the class is located.
+     * @param fileName    The name of the class file.
+     * @throws Exception If an error occurs while loading the class.
+     */
     private static void loadClass(String packageName, String fileName) throws Exception {
         String className = packageName + '.' + fileName.replace(".class", "");
         Class<?> clazz = Class.forName(className);
@@ -98,12 +101,11 @@ public class Application {
         }
     }
 
-
     /**
-     * Registra los métodos anotados con @GetMapping, @PostMapping y @DeleteMapping en el framework.
+     * Registers methods annotated with @GetMapping, @PostMapping, and @DeleteMapping in the framework.
      *
-     * @param clazz Clase del controlador.
-     * @throws Exception Si ocurre un error al registrar los métodos.
+     * @param clazz The controller class.
+     * @throws Exception If an error occurs while registering the methods.
      */
     private static void registerController(Class<?> clazz) throws Exception {
         for (Method method : clazz.getDeclaredMethods()) {
@@ -123,6 +125,14 @@ public class Application {
         }
     }
 
+    /**
+     * Invokes a method from a controller and returns the response.
+     *
+     * @param method The method to invoke.
+     * @param clazz  The controller class.
+     * @param req    The HTTP request object.
+     * @return The response as a string.
+     */
     private static String invokeMethod(Method method, Class<?> clazz, Request req) {
         try {
             Object[] args = new Object[method.getParameterCount()];

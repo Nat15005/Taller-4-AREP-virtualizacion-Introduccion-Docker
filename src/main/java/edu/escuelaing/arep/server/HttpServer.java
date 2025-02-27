@@ -11,77 +11,77 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Clase que implementa un servidor HTTP concurrente usando un pool de threads.
+ * Implements a concurrent HTTP server using a thread pool.
+ * This class listens for incoming client connections and processes requests concurrently.
  */
 public class HttpServer {
 
-    private static final int PORT = 6000; // Puerto en el que escucha el servidor
-    private static final int THREAD_POOL_SIZE = 10; // Tamaño del pool de threads
+    private static final int PORT = 6100; // Port on which the server listens
+    private static final int THREAD_POOL_SIZE = 10; // Size of the thread pool
     private static ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE); // Pool de threads
-    private static boolean isRunning = true; // Bandera para controlar el bucle del servidor
+    private static boolean isRunning = true; // Flag to control the server loop
 
     /**
-     * Inicia el servidor HTTP.
+     * Starts the HTTP server.
      *
-     * @throws IOException Si ocurre un error al crear el servidor o aceptar las conexiones de los clientes.
+     * @throws IOException If an error occurs while creating the server or accepting client connections.
      */
     public static void start() throws IOException {
         ServerSocket serverSocket = new ServerSocket(PORT);
         WebFramework.registerControllers(new BookController());
-        System.out.println("Servidor escuchando en el puerto " + PORT);
+        System.out.println("Server listening on port " + PORT);
 
-        // shutdown hook para cerrar el servidor de manera segura
+        // Shutdown hook to safely shut down the server
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Apagando el servidor...");
-            isRunning = false; // Detener el bucle del servidor
-            threadPool.shutdown(); // Apagar el pool de threads
+            System.out.println("Shutting down the server...");
+            isRunning = false; // Stop the server loop
+            threadPool.shutdown(); // Shut down the thread pool
             try {
                 if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
-                    threadPool.shutdownNow(); // Forzar el cierre si no termina en 60 segundos
+                    threadPool.shutdownNow(); // Force shutdown if not terminated in 60 seconds
                 }
             } catch (InterruptedException e) {
                 threadPool.shutdownNow();
             }
             try {
-                serverSocket.close(); // Cerrar el socket del servidor
+                serverSocket.close();
             } catch (IOException e) {
-                System.err.println("Error al cerrar el socket del servidor: " + e.getMessage());
+                System.err.println("Error closing server socket: " + e.getMessage());
             }
-            System.out.println("Servidor cerrado.");
+            System.out.println("Server closed.");
         }));
 
-        // Bucle principal del servidor
         while (isRunning) {
             try {
                 Socket clientSocket = serverSocket.accept(); // Aceptar una nueva conexión
-                System.out.println("Nueva conexión aceptada: " + clientSocket.getInetAddress());
+                System.out.println("New connection accepted: " + clientSocket.getInetAddress());
 
-                // Enviar la solicitud al pool de threads para su procesamiento
+                // Submit the request to the thread pool for processing
                 threadPool.submit(() -> {
                     try {
-                        RequestHandler.handleClient(clientSocket); // Manejar la solicitud
+                        RequestHandler.handleClient(clientSocket);
                     } catch (IOException e) {
-                        System.err.println("Error al manejar la solicitud: " + e.getMessage());
+                        System.err.println("Error handling request: " + e.getMessage());
                     } finally {
                         try {
-                            clientSocket.close(); // Cerrar el socket del cliente
+                            clientSocket.close();
                         } catch (IOException e) {
-                            System.err.println("Error al cerrar el socket del cliente: " + e.getMessage());
+                            System.err.println("Error closing client socket: " + e.getMessage());
                         }
                     }
                 });
             } catch (IOException e) {
                 if (isRunning) {
-                    System.err.println("Error al aceptar la conexión: " + e.getMessage());
+                    System.err.println("Error accepting connection: " + e.getMessage());
                 }
             }
         }
     }
-
     /**
-     * Detiene el servidor.
+     * Stops the server.
      */
     public static void stop() {
-        isRunning = false; // Detener el bucle del servidor
+        isRunning = false;
     }
 }

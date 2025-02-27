@@ -5,32 +5,31 @@ import java.nio.file.*;
 import java.util.HashMap;
 
 /**
- * Clase encargada de manejar la lectura y envío de archivos en el servidor HTTP.
- * Permite servir archivos estáticos desde un directorio base y determinar su tipo MIME.
+ * Handles the reading and serving of files in the HTTP server.
+ * This class serves static files from a base directory and determines their MIME type.
  */
 public class FileHandler {
     /**
-     * Sirve archivos estáticos desde la carpeta configurada en WebFramework.
+     * Serves static files from the folder configured in WebFramework.
      *
-     * @param resource El recurso (archivo) solicitado por el cliente.
-     * @param out El flujo de salida donde se enviará el archivo solicitado.
-     * @throws IOException Si ocurre un error al leer el archivo o escribir en el flujo de salida.
+     * @param resource The resource (file) requested by the client.
+     * @param out The output stream where the requested file will be sent.
+     * @throws IOException If an error occurs while reading the file or writing to the output stream.
      */
     public static void serveFile(String resource, OutputStream out) throws IOException {
         if (resource.equals("/")) {
-            resource = "/index.html"; // Redirigir a index.html si se accede a "/"
+            resource = "/index.html";
         }
 
-        // Obtén la ruta base de los archivos estáticos
+        // Get the base path for static files
         String staticFolder = WebFramework.getStaticFolder();
         Path filePath = Path.of(staticFolder + resource);
 
         if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
-            // Si el archivo existe, envía los encabezados y el contenido
+            // If the file exists, send the headers and content
             String contentType = getContentType(resource);
             byte[] fileBytes = Files.readAllBytes(filePath);
 
-            // Construye los encabezados HTTP
             String responseHeader = "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: " + contentType + "\r\n" +
                     "Access-Control-Allow-Origin: *\r\n" + // Permite solicitudes desde cualquier origen
@@ -39,11 +38,9 @@ public class FileHandler {
                     "Content-Length: " + fileBytes.length + "\r\n" +
                     "\r\n";
 
-            // Envía los encabezados y el contenido del archivo
             out.write(responseHeader.getBytes());
             out.write(fileBytes);
         } else {
-            // Si el archivo no existe, envía una respuesta 404
             String response = "HTTP/1.1 404 Not Found\r\n" +
                     "Access-Control-Allow-Origin: *\r\n" +
                     "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\n" +
@@ -54,6 +51,12 @@ public class FileHandler {
         }
     }
 
+    /**
+     * Sends a 404 Not Found response to the client.
+     *
+     * @param out The output stream to send the response.
+     * @throws IOException If an error occurs while writing to the output stream.
+     */
     private static void sendNotFound(OutputStream out) throws IOException {
         String response = "HTTP/1.1 404 Not Found\r\n" +
                 "Content-Type: text/plain\r\n" +
@@ -62,6 +65,12 @@ public class FileHandler {
         out.write(response.getBytes());
     }
 
+    /**
+     * Determines the MIME type file based on its extension.
+     *
+     * @param fileName The name of the file.
+     * @return The MIME type of the file, or "application/octet-stream" if the extension is unknown.
+     */
     static String getContentType(String fileName) {
         HashMap<String, String> mimeTypes = new HashMap<>();
         mimeTypes.put("html", "text/html");
