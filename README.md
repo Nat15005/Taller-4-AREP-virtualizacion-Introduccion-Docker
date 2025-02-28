@@ -41,14 +41,14 @@ Once the project is built, you can start the server with the following command:
 java -cp target/classes edu.escuelaing.arep.Application
 ```
 
-The server will start and listen on port `35000`.
+The server will start and listen on port `6100`.
 
 ### Accessing the Application
 
 Open your web browser and go to:
 
 ```
-http://localhost:35000/
+http://localhost:6100/
 ```
 
 You should see the main page of the application.
@@ -88,31 +88,7 @@ http://localhost:35000/index.css
 ```
 ![image](https://github.com/user-attachments/assets/b2592241-c83d-42f6-9443-05fb27035a8c)
 
-This will return the index.css file, and:
-
-```  
-http://localhost:35000/pato.png
-
-```
-This will serve the pato.png image from the static folder.
-
-![image](https://github.com/user-attachments/assets/d32c91ef-8457-48fc-8226-ef4a9f60f52a)
-
-#### Changing the Static File Location
-
-You can change where the framework looks for static files by configuring the staticfiles() method to point to a different folder. For example, if you have a test folder called prueba, you can update the configuration as follows:
-
-![image](https://github.com/user-attachments/assets/317c4e7f-22b7-4a2e-bf71-44c17143f8d1)
-
-
-Once this change is made, the server will search for static files in the prueba directory. This means that any requests for static resources will now be handled by files located inside prueba. For example:
-
-```  
-http://localhost:35000/index.html
-
-```
-This will serve the index.html file from the prueba folder.
-![image](https://github.com/user-attachments/assets/ef2cf31a-8dd1-4126-9a53-0f6430a8db91)
+This will return the index.css file
 
 ## Concurrency Improvements
 
@@ -191,6 +167,84 @@ private static final ConcurrentHashMap<String, Book> books = new ConcurrentHashM
 
 ## Dockerization & Deployment
 
+1. Add the Dockerfile to the Root of the Project
+2. Build the Docker Image
+    ```
+   docker build --tag areptallercuatro .
+   ```
+    ![image](https://github.com/user-attachments/assets/1368e5db-cd88-4f6b-a313-28a2a505705e)
+
+
+3. Create and Run Docker Containers
+
+    ```
+      docker run -d -p 34000:6000 areptallercuatro
+      docker run -d -p 34001:6000 areptallercuatro2
+      docker run -d -p 34002:6000 areptallercuatro3
+
+      ```
+
+    ![image](https://github.com/user-attachments/assets/5d2f8098-78a5-491d-b8bc-a657e87c6c34)
+   
+   
+4. Verify the Application in the Browser
+   - localhost:34000
+     ![image](https://github.com/user-attachments/assets/56dc30f2-2fdc-46f6-831a-77352ada4d21)
+
+   - localhost:34001
+     ![image](https://github.com/user-attachments/assets/9d483793-b067-4c6b-9a91-83a6ece8e6cc)
+   
+   - localhost:34002
+     ![image](https://github.com/user-attachments/assets/f3c86c58-0f00-4713-b2e9-d77fe358e7c9)
+
+5. Then Upload the image to DockerHub, Creating a Repository on Docker Hub
+   ![image](https://github.com/user-attachments/assets/692f4eab-b438-4da7-8036-708a86179584)
+
+6. Tag the Local Docker Image
+
+      ```
+      docker tag areptallercuatro nat1505/areptaller4       
+      ```
+   
+7. Push the Image to Docker Hub
+
+   ```
+    docker push nat1505/areptaller4:latest
+    ```
+8. Now is possible to deploy the Docker Container on AWS. First, Connect to your AWS EC2 instance using SSH:
+   ```
+    ssh -i your-key.pem ec2-user@your-ec2-public-ip
+   ```
+9. Install Docker on AWS
+    ```
+    sudo yum update -y
+    sudo yum install docker
+    ```
+
+10. Start the Docker Service
+      ```
+      sudo service docker start
+      ```
+11. Add User to Docker Group
+      ```
+      sudo service docker start
+      ```
+12. Run a Container from the Docker Hub Image
+      ```
+      docker run -d -p 42000:6000 --name areptallercuatro nat1505/areptaller4
+      ```
+13. Configure AWS Security Group to Allow External Access
+
+   - Go to the AWS EC2 Console.
+   - Find your instance and open the Security Group settings.
+   - Edit Inbound Rules and add a rule to allow traffic:
+      - Type: Custom TCP
+      - Port Range: 42000
+      - Source: Anywhere (0.0.0.0/0)
+14. Verify the Deployment
+   ![image](https://github.com/user-attachments/assets/50d55eb4-56ef-4ae7-a810-c2a58cc2d434)
+
+
 ## Running Tests
 
 To run the unit tests, use the following command:
@@ -198,7 +252,7 @@ To run the unit tests, use the following command:
 ```bash
 mvn test
 ```
-![image](https://github.com/user-attachments/assets/54205ab7-cd57-42c7-9b2f-cbd3ea1556fd)
+![image](https://github.com/user-attachments/assets/d8f2c103-dd3b-49c4-85c1-ccc378860db5)
 
 
 ### BookTest  
