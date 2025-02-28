@@ -222,6 +222,8 @@ private static final ConcurrentHashMap<String, Book> books = new ConcurrentHashM
    ```
     ssh -i your-key.pem ec2-user@your-ec2-public-ip
    ```
+   ![Imagen de WhatsApp 2025-02-18 a las 15 12 28_5255dda5](https://github.com/user-attachments/assets/5bbb8d4a-0dd8-4249-8cd8-2e053f3edbd8)
+
 9. Install Docker on AWS
     ```
     sudo yum update -y
