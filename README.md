@@ -70,7 +70,7 @@ To test the functionality of the new REST framework, try the following endpoints
 - GET request with query parameters:
   
 ```  
-http://localhost:35000/greeting?name=Natalia
+http://localhost:6100/greeting?name=Natalia
 ```
 
 This will return: Hello Natalia
@@ -90,7 +90,7 @@ The framework includes a staticfiles() method that allows developers to define w
 Once the staticfiles() method is configured, you can easily access static resources like CSS, PNG, and other files by simply making a request to the corresponding URL. For example, a request to:
 
 ```  
-http://localhost:35000/index.css
+http://localhost:6100/index.css
 
 ```
 ![image](https://github.com/user-attachments/assets/b2592241-c83d-42f6-9443-05fb27035a8c)
@@ -362,7 +362,7 @@ Represents a book with a title and an author. Provides methods to access book de
 Handles file reading and serving in the HTTP server. Serves static files from a configured directory and determines MIME types.
 
 #### 🌐 HttpServer:
-Implements an HTTP server listening on port 35000. Manages REST requests and serves static files.
+Implements an HTTP server listening on port 6100. Manages REST requests and serves static files.
 
 #### 📩 Request:
 Represents an HTTP request, storing query parameters and providing methods to retrieve their values.
