@@ -4,6 +4,13 @@ This framework is a lightweight, concurrent web server built in Java, inspired b
 
 As part of the project, a demonstration web application was built to manage books, allowing users to add, delete, and list books through REST services. The application was then containerized using Docker, configured and deployed locally, and pushed to a repository on DockerHub. Finally, an AWS EC2 virtual machine was set up, Docker was installed, and the container was deployed successfully.
 
+## Demo video
+📌 [videoDemo](https://acortar.link/rx7zwM)
+
+https://github.com/user-attachments/assets/0c4b8656-0f90-4711-b54d-0dc3c2a95707
+
+
+
 ## Getting Started
 
 These instructions will guide you to get a copy of the project up and running on your local machine for development and testing purposes.
