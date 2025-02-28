@@ -251,6 +251,10 @@ private static final ConcurrentHashMap<String, Book> books = new ConcurrentHashM
       - Port Range: 42000
       - Source: Anywhere (0.0.0.0/0)
 14. Verify the Deployment
+
+   ![image](https://github.com/user-attachments/assets/bd260675-4d5a-4cda-8106-02e4468313c7)
+
+
    ![image](https://github.com/user-attachments/assets/50d55eb4-56ef-4ae7-a810-c2a58cc2d434)
 
 
